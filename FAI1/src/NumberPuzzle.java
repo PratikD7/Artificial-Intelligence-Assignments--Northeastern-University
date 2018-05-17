@@ -1,17 +1,21 @@
+// FINAL SUBMISSION //
+
+
 // NAME OF THE STUDENT - PRATIK DEVIKAR
 
 // Time required for execution:
-// 1. Number of misplaced Tiles Heuristic : 46663487 nanosec
-// 2. Manhattan Distance heuristic : 29655692 nanosec
+// 1. Number of misplaced Tiles Heuristic : 61,485,802 nanosec => 0.061 sec
+// 2. Manhattan Distance heuristic : 44,533,710 nanosec => 0.044 sec
 
 // Answer for Q.9
 // Assuming we are now allowing diagonal moves,
-// the Euclidean Distance heuristic is still admissible and consistent. (Because the shortest distance between any 2 tiles is given by Euclidean Distance).
-// Using Euclidean distance of the heuristic would definitely work.
+// the Euclidean Distance heuristic is still admissible and consistent. (Because the shortest distance between any 2 tiles is given by Euclidean Distance
+// and at each step we are getting close to our goal).
+// Using Euclidean distance as the heuristic would definitely work.
 // But there are some drawbacks:
 // Since the Euclidean distance shows a straight line path from source to destination (not necessarily a diagonal path),
 // and since Euclidean distance between any two points is smaller than or equal to Manhattan Distance, we will still
-// get the shortest paths, but it will take longer time for execution because the square root function(in Euclidean distance) is quite expensive.
+// get the shortest paths, but it will take longer time for execution because the square root function(in Euclidean distance) is quite expensive, computationally.
 
 //---------------------------------------------------------------------------------------------------------------------
 import java.util.*;
@@ -54,7 +58,7 @@ public class NumberPuzzle implements Comparable<NumberPuzzle>{
         long startTime = System.nanoTime();
 
         // Solve the puzzle
-        BETTER = true; // For Manhattan Distance heuristic
+        BETTER = true; // True for Manhattan Distance heuristic, false for Misplaced Tiles Heuristic
         LinkedList<NumberPuzzle> solutionSteps = myPuzzle.solve(BETTER);
 
         // Print the solution steps
@@ -362,6 +366,8 @@ public class NumberPuzzle implements Comparable<NumberPuzzle>{
             // Generate a new neighbor puzzle
             NumberPuzzle neighborPuzzle;
             neighborPuzzle = currentNode.copy();
+
+            // Swap the blank places with appropriate numbers
             row = neighbours[0]; column = neighbours[1];
             temp_r = neighborPuzzle.blank_r;
             temp_c = neighborPuzzle.blank_c;
