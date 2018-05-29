@@ -1,0 +1,10 @@
+1    1    happy happy joy joy    4
+2    2    happy meh joy meh    3
+3    3    meh meh meh meh    2
+4    4    blah meh blah meh    1
+5    5    blah ugh blah ugh    0
+---
+happy happy happy
+happy meh
+meh meh meh blah
+ugh
