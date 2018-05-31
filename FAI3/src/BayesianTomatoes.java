@@ -170,10 +170,10 @@ public class BayesianTomatoes {
     public static void classifySentences(Scanner sc) {
         while(sc.hasNextLine()) {
             String line = sc.nextLine();
-            Classification nbClass = naiveBayesClassify(line);
-//            Classification mmClass = markovModelClassify(line);
+//            Classification nbClass = naiveBayesClassify(line);
+            Classification mmClass = markovModelClassify(line);
 //            System.out.print(nbClass.toString() + mmClass.toString());
-	        System.out.print(nbClass.toString());
+	        System.out.print(mmClass.toString());
         }
     }
 
@@ -198,6 +198,7 @@ public class BayesianTomatoes {
 					float posterior = (float)(wordCounts.get(i).get(tokenized[j]))/(totalWords[i]);
 					posterior_prob = (float) Math.log(posterior);
 				}
+				// If the word doesnt exist in the training data
 				catch (NullPointerException e){
 					posterior_prob = (float) Math.log(OUT_OF_VOCAB_PROB);
 				}
@@ -213,9 +214,6 @@ public class BayesianTomatoes {
         	    	index=i;
 	            }
         }
-
-
-//        return new Classification(-1,0);
 	    return new Classification(index, max);
     }
 
@@ -224,7 +222,54 @@ public class BayesianTomatoes {
     public static Classification markovModelClassify(String sentence) {
         // TODO
 
-        return new Classification(-1,0);
+	    float[] log_probs = new float[CLASSES];
+
+	    for (int i=0; i< CLASSES; i++){
+		    float prior_prob;
+		    float posterior_prob;
+
+		    prior_prob = (float)sentimentCounts[i]/ IntStream.of(sentimentCounts).sum();
+		    log_probs[i] = (float) Math.log(prior_prob);
+
+		    // Naive Bayes Rule
+		    String[] tokenized = sentence.split("\\s");
+		    for (int j = 0; j < tokenized.length; j++){
+
+		    	if (j==0) {
+				    try {
+					    float posterior = (float) (wordCounts.get(i).get(tokenized[j])) / (totalWords[i]);
+					    posterior_prob = (float) Math.log(posterior);
+					    // If the word doesnt exist in the training data
+				    } catch (NullPointerException e) {
+					    posterior_prob = (float) Math.log(OUT_OF_VOCAB_PROB);
+				    }
+				    log_probs[i] += posterior_prob;
+			    }
+			    //for Bigrams
+			    else{
+				    try {
+					    float posterior = (float) (bigramCounts.get(i).get(tokenized[j-1]+" "+tokenized[j])) / (bigramDenoms.get(i).get(tokenized[j-1]));
+					    posterior_prob = (float) Math.log(posterior);
+				    }
+				    // If the word bigram exist in the training data
+				    catch(NullPointerException e){
+					    posterior_prob = (float) Math.log(OUT_OF_VOCAB_PROB);
+				    }
+				    log_probs[i] += posterior_prob;
+			    }
+		    }
+	    }
+
+	    float max=log_probs[0];
+	    int index=0;
+	    for (int i=1;i<log_probs.length;i++){
+		    if (log_probs[i] > max){
+			    max = log_probs[i];
+			    index=i;
+		    }
+	    }
+	    return new Classification(index, max);
+
     }
 }
 
