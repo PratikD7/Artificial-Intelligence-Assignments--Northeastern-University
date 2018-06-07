@@ -1,0 +1,17 @@
+if C < 1.0
+    NO
+else
+    if D < 1.0
+        NO
+    else
+        YES
+
+Training data results: 
+Precision: 1.0000
+Recall: 1.0000
+Accuracy: 1.0000
+
+Test data results: 
+Precision: 1.0000
+Recall: 1.0000
+Accuracy: 1.0000

@@ -1,0 +1,11 @@
+YES
+
+Training data results: 
+Precision: 0.5625
+Recall: 1.0000
+Accuracy: 0.5625
+
+Test data results: 
+Precision: 0.5000
+Recall: 1.0000
+Accuracy: 0.5000
