@@ -1,0 +1,20 @@
+MDP
+1.0
+- - P - -
+- - G P -
+- - P - -
+- - - - -
+
+
+
+Ans:
+R D P R D
+R R G P D
+U U P D D
+U U L L L
+
+My ans:
+R D P R D
+R R G P D
+R U P D D
+R U L L L
