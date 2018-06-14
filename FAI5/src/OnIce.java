@@ -7,7 +7,7 @@ public class OnIce {
     public static final double DISCOUNT_FACTOR = 0.5;
     public static final double EXPLORE_PROB = 0.2;  // for Q-learning
     public static final double LEARNING_RATE = 0.1;
-    public static final int ITERATIONS = 10000;
+    public static final int ITERATIONS = 20000;
     public static final int MAX_MOVES = 1000;
 
     // Using a fixed random seed so that the behavior is a little
@@ -274,12 +274,23 @@ public class OnIce {
 
         public Policy solve(Problem prob, int iterations) {
             Policy policy = new Policy(prob);
+	        String[] directions = {"R", "D", "L", "U"};
             // TODO: your code here; probably wants at least one helper too
 
 	        for (int r = 0; r < rewards.length; r++) {
 		        for (int c = 0; c < rewards[0].length; c++) {
 					if (prob.map.get(r).get(c).equals("G") || prob.map.get(r).get(c).equals("P")){
 						policy.bestActions[r][c] = prob.map.get(r).get(c);
+						if (prob.map.get(r).get(c).equals("G")){
+							for (int i=0;i<ACTIONS;i++){
+								utilities[i][r][c] = GOLD_REWARD;
+							}
+						}
+						else{
+							for (int i=0;i<ACTIONS;i++){
+								utilities[i][r][c] = PIT_REWARD;
+							}
+						}
 					}
 		        }
 	        }
@@ -287,9 +298,9 @@ public class OnIce {
 
 
 	        for (int z=0; z<ITERATIONS; z++) {
-		        System.out.println(policy.toString());
+//		        System.out.println(policy.toString());
 		        int prev_row=-1, prev_col=-1;
-		        System.out.println(z);
+//		        System.out.println(z);
 		        int rnd_row, rnd_col;
 		        rnd_row = rng.nextInt(prob.map.size() - 1);
 		        rnd_col = rng.nextInt(prob.map.get(0).size()-1);
@@ -340,7 +351,7 @@ public class OnIce {
 				        if (rng.nextDouble() < EXPLORE_PROB) {
 					        int rnd_dir, row, col;
 					        rnd_dir = rng.nextInt(4);
-					        String[] directions = {"R", "D", "L", "U"};
+//					        String[] directions = {"R", "D", "L", "U"};
 //					        String[] directions = {"U", "R", "D", "L"};
 					        row = rnd_row;
 					        col = rnd_col;
@@ -550,22 +561,24 @@ public class OnIce {
 
 					        }
 					        if(!wall) {
-
-							        utilities[rnd_dir][rnd_row][rnd_col] += LEARNING_RATE * (rewards[rnd_row][rnd_col] + DISCOUNT_FACTOR * (scoreQ) - utilities[rnd_dir][rnd_row][rnd_col]);
-						        for (int h=1;h<ACTIONS;h++){
-							        if (utilities[h][rnd_row][rnd_col] > utilities[h-1][rnd_row][rnd_col]){
-								        policy.bestActions[rnd_row][rnd_col] = directions[h];
+						        utilities[rnd_dir][rnd_row][rnd_col] += LEARNING_RATE * (rewards[rnd_row][rnd_col] + DISCOUNT_FACTOR * (scoreQ) - utilities[rnd_dir][rnd_row][rnd_col]);
+//						        if (policy.bestActions[rnd_row][rnd_col]==null){
+//							        policy.bestActions[rnd_row][rnd_col] = directions[rnd_dir];
+//						        }
+//						        else {
+						            double prev_max = 0.0;
+							        for (int h = 0; h < ACTIONS; h++) {
+								        if (utilities[h][rnd_row][rnd_col] > prev_max) {
+									        policy.bestActions[rnd_row][rnd_col] = directions[h];
+									        prev_max = utilities[h][rnd_row][rnd_col];
+								        }
 							        }
-							        else{
-								        policy.bestActions[rnd_row][rnd_col] = directions[0];
-							        }
-						        }
 //							        policy.bestActions[rnd_row][rnd_col] = directions[d]; //????????? Select best actions based on maximum valued direction
 							        prev_row = rnd_row;
 							        prev_col = rnd_col;
 							        rnd_col = currentcol;
 							        rnd_row = currentrow;
-
+//						        }
 					        }
 					        else{
 						        prev_row = -1;
@@ -591,7 +604,7 @@ public class OnIce {
 						        }
 					        }
 					        double scoreQ = 0.0;
-					        String[] directions = {"R", "D", "L", "U"};
+//					        String[] directions = {"R", "D", "L", "U"};
 //					        String[] directions = {"U", "R", "D", "L"};
 
 					        switch (directions[direction]) {
@@ -800,16 +813,23 @@ public class OnIce {
 //					        }
 					        if (!wall) {
 						        utilities[direction][rnd_row][rnd_col] += LEARNING_RATE * (rewards[rnd_row][rnd_col] + DISCOUNT_FACTOR * (scoreQ) - utilities[direction][rnd_row][rnd_col]);
-						        for (int h=1;h<ACTIONS;h++){
-						        	if (utilities[h][rnd_row][rnd_col] > utilities[h-1][rnd_row][rnd_col]){
-								        policy.bestActions[rnd_row][rnd_col] = directions[h];
+//						        if (policy.bestActions[rnd_row][rnd_col]==null){
+//							        policy.bestActions[rnd_row][rnd_col] = directions[direction];
+//						        }
+//						        else {
+									double prev_max = 0.0;
+							        for (int h = 0; h < ACTIONS; h++) {
+								        if (utilities[h][rnd_row][rnd_col] > prev_max) {
+									        policy.bestActions[rnd_row][rnd_col] = directions[h];
+									        prev_max = utilities[h][rnd_row][rnd_col];
+								        }
 							        }
-						        }
-						         //Select best actions based on maximum valued direction
-						        prev_row = rnd_row;
-						        prev_col = rnd_col;
-						        rnd_col = currentcol;
-						        rnd_row = currentrow;
+							        //Select best actions based on maximum valued direction
+							        prev_row = rnd_row;
+							        prev_col = rnd_col;
+							        rnd_col = currentcol;
+							        rnd_row = currentrow;
+//						        }
 					        }
 					        else{
 						        prev_row = -1;
@@ -830,7 +850,18 @@ public class OnIce {
 
 
 
-
+			for (int r=0; r<policy.bestActions.length ;r++){
+	        	for(int c=0; c<policy.bestActions[0].length; c++){
+	        		if (policy.bestActions[r][c] == null){
+	        			Double max = Double.NEGATIVE_INFINITY;
+	        			for (int k=0;k<ACTIONS;k++){
+	        				if (utilities[k][r][c] > max){
+	        					policy.bestActions[r][c] = directions[k];
+					        }
+				        }
+			        }
+		        }
+			}
 
 
             return policy;
