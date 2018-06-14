@@ -1,0 +1,11 @@
+Q
+0.2 0.7 0.1
+- - P - -
+- - G P -
+- - P - -
+- - - - -
+
+D L P R D
+R L G P L
+D L P D D
+U L L L L

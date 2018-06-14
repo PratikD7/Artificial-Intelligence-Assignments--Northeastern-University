@@ -1,0 +1,21 @@
+MDP
+0.6 0.3 0.1
+- P - G - P - - G -
+P G - P - - - P - -
+P P - P P - P - P -
+P - - P P - - - - P
+- - - - - - - - P G
+
+Ans:
+U P R G L P R R G L
+P G U P U D U P U U
+P P U P P D P D P U
+P D U P P D D D L P
+R R U L L L L L P G
+
+My ans:
+U P R G L P R R G L
+P G U P U D U P U U
+P P U P P D P D P U
+P D U P P D D D L P
+R R U L L L L L P G

@@ -1,0 +1,12 @@
+Q
+1.0
+- - P - -
+- - G P -
+- - P - -
+- - - - -
+
+Ans:
+R D P R D
+R R G P D
+U U P D L
+U U L L L
