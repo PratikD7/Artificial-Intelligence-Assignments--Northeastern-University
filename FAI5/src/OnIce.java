@@ -298,9 +298,10 @@ public class OnIce {
 		        currentcol = rnd_col;
 				boolean wall=false;
 		        boolean gameOver = false;
+
 		        while (!gameOver) {
 
-			        int indexOfNextStateSlipping; //?????????
+			        int indexOfNextStateSlipping;
 			        double[] array = new double[prob.moveProbs.length+1];
 			        array[0] = 0.0;
 			        for (int y=0;y<prob.moveProbs.length;y++){
@@ -549,21 +550,22 @@ public class OnIce {
 
 					        }
 					        if(!wall) {
-						        utilities[rnd_dir][rnd_row][rnd_col] += LEARNING_RATE * (rewards[rnd_row][rnd_col] + DISCOUNT_FACTOR * (scoreQ) - utilities[rnd_dir][rnd_row][rnd_col]);
-						        int d = 0;
-						        double max = Double.NEGATIVE_INFINITY;
-						        for (int i = 0; i < ACTIONS; i++) {
-							        if (utilities[i][row][col] > max) {
-								        max = utilities[i][row][col];
-								        d = i;
+
+							        utilities[rnd_dir][rnd_row][rnd_col] += LEARNING_RATE * (rewards[rnd_row][rnd_col] + DISCOUNT_FACTOR * (scoreQ) - utilities[rnd_dir][rnd_row][rnd_col]);
+						        for (int h=1;h<ACTIONS;h++){
+							        if (utilities[h][rnd_row][rnd_col] > utilities[h-1][rnd_row][rnd_col]){
+								        policy.bestActions[rnd_row][rnd_col] = directions[h];
+							        }
+							        else{
+								        policy.bestActions[rnd_row][rnd_col] = directions[0];
 							        }
 						        }
+//							        policy.bestActions[rnd_row][rnd_col] = directions[d]; //????????? Select best actions based on maximum valued direction
+							        prev_row = rnd_row;
+							        prev_col = rnd_col;
+							        rnd_col = currentcol;
+							        rnd_row = currentrow;
 
-						        policy.bestActions[rnd_row][rnd_col] = directions[d];
-						        prev_row = rnd_row;
-						        prev_col = rnd_col;
-						        rnd_col = currentcol;
-						        rnd_row = currentrow;
 					        }
 					        else{
 						        prev_row = -1;
@@ -580,7 +582,6 @@ public class OnIce {
 					        row = rnd_row;
 					        col = rnd_col;
 					        int direction = 0;
-					        int rowG, colG;
 							double maxi = Double.NEGATIVE_INFINITY;
 
 					        for (int i = 0; i < ACTIONS; i++) {
@@ -799,7 +800,12 @@ public class OnIce {
 //					        }
 					        if (!wall) {
 						        utilities[direction][rnd_row][rnd_col] += LEARNING_RATE * (rewards[rnd_row][rnd_col] + DISCOUNT_FACTOR * (scoreQ) - utilities[direction][rnd_row][rnd_col]);
-						        policy.bestActions[rnd_row][rnd_col] = directions[direction];
+						        for (int h=1;h<ACTIONS;h++){
+						        	if (utilities[h][rnd_row][rnd_col] > utilities[h-1][rnd_row][rnd_col]){
+								        policy.bestActions[rnd_row][rnd_col] = directions[h];
+							        }
+						        }
+						         //Select best actions based on maximum valued direction
 						        prev_row = rnd_row;
 						        prev_col = rnd_col;
 						        rnd_col = currentcol;
