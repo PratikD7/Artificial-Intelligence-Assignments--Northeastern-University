@@ -1,11 +1,4 @@
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Random;
-import java.util.Scanner;
-import java.util.Set;
-import java.util.stream.IntStream;
+import java.util.*;
 
 // Semisupervised Tomatoes:
 // EM some Naive Bayes and Markov Models to do sentiment analysis.
@@ -53,7 +46,7 @@ public class SemisupervisedTomatoes { /////////////////////??????????????? PUNCT
     // ground to talk about
     public static Random rng = (FIXED_SEED? new Random(2018) : new Random());
 
-    public static NaiveBayesModel nbModel;
+    public static NaiveBayesModel nbModel = new NaiveBayesModel();
 
     public static class NaiveBayesModel {
         public double[] classCounts;
@@ -73,21 +66,37 @@ public class SemisupervisedTomatoes { /////////////////////??????????????? PUNCT
         // belonging to each class
         void update(String sentence, ArrayList<Double> probs) {
             // TODO
+
             // Split the sentence into words and apply case folding
             String[] tokens = sentence.split(" ");
             for (int i=0; i<tokens.length; i++){
                 tokens[i] = tokens[i].toLowerCase();
-                // PUNCTUATIONS?
             }
 
             // Update the values of classcounts, totalwords and wordcounts
             for (int j=0;j<probs.size();j++){
+
+                HashMap<String, Double> hmap = new HashMap<>();
+                hmap = wordCounts.get(j);
+
                 classCounts[j] += probs.get(j);
                 totalWords[j] += probs.get(j) * sentence.length();
                 for (int k=0;k<tokens.length;k++){
-                    HashMap<String, Double> hm = new HashMap<>();
-                    hm.put(tokens[k], hm.get(tokens[k]) + probs.get(j)); ///////////?????????
-                    wordCounts.add(j, hm);
+                    boolean flag = false;
+
+                    if (wordCounts.get(j).containsKey(tokens[k])){
+                        flag = true;
+                    }
+
+                    if (flag){
+                        hmap.put(tokens[k], wordCounts.get(j).get(tokens[k]) + probs.get(j)); ///////////?????????
+                        wordCounts.set(j, hmap);
+                    }
+                    else{
+                        hmap.put(tokens[k], probs.get(j));
+                        wordCounts.set(j, hmap);
+                    }
+
                 }
             }
         }
@@ -97,11 +106,6 @@ public class SemisupervisedTomatoes { /////////////////////??????????????? PUNCT
         // was.  Return a list of class probabilities.
         public ArrayList<Double> classify(String sentence) {
             // TODO (the below is a placeholder to compile)
-
-
-
-
-
 
 
             double[] probs = new double[CLASSES];
@@ -142,6 +146,13 @@ public class SemisupervisedTomatoes { /////////////////////??????????????? PUNCT
 	        for (int z=0; z<probs.length; z++){
 		        probs[z] /= sumOfProbs;
 	        }
+
+
+	        for (int z=0;z<probs.length; z++){
+	            if (probs[z] == Double.POSITIVE_INFINITY){
+	                probs[z] = 0.5;
+                }
+            }
 
 			ArrayList <Double> al = new ArrayList<>();
 	        for (int q=0; q<probs.length; q++)
@@ -219,11 +230,57 @@ public class SemisupervisedTomatoes { /////////////////////??????????????? PUNCT
         HashMap<String,ArrayList<Double>> naiveClasses = randomInit(sentences);
         // Initialize the parameters by training as if init were
         // ground truth (essentially starting with M step)
-        // TODO
+        // TODO : Initialize the model paramters using the supervised labeled sentences
+        ArrayList<Double> probs;
+        initializeModelParamters(sentences);
+
         for (int i = 0; i < ITERATIONS; i++) {
             System.err.println("EM round " + i);
             // TODO:  E STEP
+            // Calling classify on all sentences to get probability arraylists for each
+            for (String sentence: sentences){
+                probs = nbModel.classify(sentence);
+                naiveClasses.put(sentence, probs);
+            }
+
+            // Reset the model parameters
+            for (int d=0;d<nbModel.classCounts.length; d++){
+                nbModel.classCounts[d] = 0;
+            }
+            for (int d=0;d<nbModel.totalWords.length; d++){
+                nbModel.totalWords[d] = 0;
+            }
+            nbModel.wordCounts.clear();
+            for (int h = 0; h < CLASSES; h++) {
+                nbModel.wordCounts.add(new HashMap<String, Double>());
+            }
+
             // TODO:  M STEP
+            // throwing out the old counts of everything and using update() to get new counts
+            for (Map.Entry<String, ArrayList<Double>> entry: naiveClasses.entrySet()){
+                nbModel.update(entry.getKey(), entry.getValue());
+            }
+
+        }
+    }
+
+    private static void initializeModelParamters(ArrayList<String> sentences) {
+        ArrayList<Double> probs = new ArrayList<>();
+        Double pos=0.0, neg=0.0;
+        for (int k=0;k<sentences.size(); k++){
+            if (sentences.get(k).startsWith(":)")){
+                pos+=1;
+            }
+            else if (sentences.get(k).startsWith(":(")){
+                neg+=1;
+            }
+        }
+        probs.add(neg/(pos+neg));
+        probs.add(pos/(pos+neg));
+        for (int k=0;k<sentences.size(); k++) {
+            if (sentences.get(k).startsWith(":)") || sentences.get(k).startsWith(":(")) {
+                nbModel.update(sentences.get(k), probs);
+            }
         }
     }
 
