@@ -1,2 +1,2 @@
 # FAI-CS5100
-Assignments of CS 5100 of Northeastern University
+Assignments of Foundations of Artificial Intelligence(CS 5100) of Northeastern University
